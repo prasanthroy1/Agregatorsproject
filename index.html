@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>CSV Aggregator</title>
+</head>
+<body>
+    <h1>CSV Data Aggregation</h1>
+    <form id="upload-form" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <input type="file" name="file" id="file-input" required>
+        <button type="submit">Upload</button>
+    </form>
+
+    <form id="aggregation-form">
+        <select name="column" id="column-select">
+            <option value="column1">Column 1</option>
+            <option value="column2">Column 2</option>
+        </select>
+        <select name="agg_type" id="agg-select">
+            <option value="sum">Sum</option>
+            <option value="avg">Average</option>
+            <option value="min">Min</option>
+            <option value="max">Max</option>
+        </select>
+        <button type="submit">Compute</button>
+    </form>
+
+    <h3>Result: <span id="result"></span></h3>
+
+    <script>
+        document.getElementById('upload-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const response = await fetch('/upload/', { method: 'POST', body: formData });
+            const result = await response.json();
+            alert(result.message || result.error);
+        });
+
+        document.getElementById('aggregation-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const column = document.getElementById('column-select').value;
+            const aggType = document.getElementById('agg-select').value;
+            const response = await fetch(`/aggregate/?column=${column}&agg_type=${aggType}`);
+            const result = await response.json();
+            document.getElementById('result').innerText = result.result || result.error;
+        });
+    </script>
+</body>
+</html>
